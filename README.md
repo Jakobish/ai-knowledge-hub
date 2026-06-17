@@ -9,30 +9,35 @@ This repository contains **practical examples, tutorials, and documentation** fo
 ## 📚 What You'll Find Here
 
 ### 🔄 Loop Engineering
+
 - **Concepts**: Understanding the shift from prompt engineering to loop engineering
 - **Patterns**: Retry loops, Plan-Execute-Verify, Multi-Agent systems
 - **Examples**: Python and TypeScript implementations
 - **Best Practices**: Goal definition, error handling, cost management
 
 ### 🔷 DAG Workflows
+
 - **Fundamentals**: Directed Acyclic Graphs for workflow orchestration
 - **Implementation**: Building DAG execution engines
 - **Integration**: Combining DAGs with AI agents
 - **Advanced**: Conditional logic, parallel execution
 
 ### 🧠 Graph RAG
+
 - **Knowledge Graphs**: Building and querying knowledge bases
 - **Retrieval**: Advanced retrieval strategies
 - **Integration**: Combining graphs with LLMs
 - **Use Cases**: Document understanding, research assistance
 
 ### 📄 PDF Processing
+
 - **Internals**: Understanding PDF file structure
 - **Extraction**: Text, images, and metadata extraction
 - **OCR**: Processing scanned documents
 - **Forensics**: Digital investigation techniques
 
 ### 🤖 Agent Frameworks
+
 - **LangGraph**: Graph-based workflows
 - **Microsoft Agents**: Enterprise AI solutions
 - **OpenAI SDK**: Official OpenAI agent framework

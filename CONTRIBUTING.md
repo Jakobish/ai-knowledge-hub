@@ -1,22 +1,25 @@
 # Contributing to AI Knowledge Hub
 
-## 🎉 Welcome!
+## 🎉 Welcome
 
 Thank you for your interest in contributing to the AI Knowledge Hub! We welcome contributions from everyone.
 
 ## 📌 How to Contribute
 
 ### Reporting Issues
+
 - Use the GitHub issue tracker to report bugs or suggest features
 - Include detailed information about the issue
 - Provide steps to reproduce if it's a bug
 
 ### Suggesting Enhancements
+
 - Open an issue to discuss your idea
 - Provide use cases and benefits
 - Be open to feedback and discussion
 
 ### Submitting Pull Requests
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
@@ -24,6 +27,7 @@ Thank you for your interest in contributing to the AI Knowledge Hub! We welcome 
 5. Open a Pull Request
 
 ### Code Contributions
+
 - Follow the existing code style
 - Include appropriate comments
 - Add tests for new functionality
@@ -31,6 +35,7 @@ Thank you for your interest in contributing to the AI Knowledge Hub! We welcome 
 - Keep commits atomic
 
 ### Documentation Contributions
+
 - Improve existing documentation
 - Add new tutorials and guides
 - Update examples
@@ -47,18 +52,21 @@ Thank you for your interest in contributing to the AI Knowledge Hub! We welcome 
 ## 🎨 Code Style Guidelines
 
 ### Python
+
 - Follow PEP 8 style guide
 - Use type hints
 - Include docstrings
 - Use consistent naming
 
 ### TypeScript
+
 - Follow TypeScript best practices
 - Use strong typing
 - Include JSDoc comments
 - Use consistent formatting
 
 ### Documentation
+
 - Use clear, concise language
 - Include code examples
 - Add diagrams where helpful

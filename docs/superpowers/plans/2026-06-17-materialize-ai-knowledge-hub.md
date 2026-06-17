@@ -13,6 +13,7 @@
 ### Task 1: Loop Engineering Examples
 
 **Files:**
+
 - Modify: `loop-engineering/examples/python/retry_loop.py`
 - Modify: `loop-engineering/examples/python/plan_execute_verify.py`
 - Modify: `loop-engineering/examples/python/multi_agent.py`
@@ -29,6 +30,7 @@
 ### Task 2: DAG Workflow Examples
 
 **Files:**
+
 - Modify: `dag-workflows/examples/basic_dag.py`
 - Modify: `dag-workflows/examples/advanced_dag.py`
 - Modify: `dag-workflows/examples/dag_with_loops.py`
@@ -42,6 +44,7 @@
 ### Task 3: Graph RAG Examples
 
 **Files:**
+
 - Modify: `graph-rag/examples/basic_graph_rag.py`
 - Modify: `graph-rag/examples/knowledge_graph.py`
 - Modify: `graph-rag/examples/graph_rag_with_loops.py`
@@ -55,6 +58,7 @@
 ### Task 4: PDF Processing Examples
 
 **Files:**
+
 - Modify: `pdf-processing/examples/pdf_extractor.py`
 - Modify: `pdf-processing/examples/pdf_ocr.py`
 - Modify: `pdf-processing/examples/pdf_metadata.py`
@@ -68,6 +72,7 @@
 ### Task 5: Agent Framework Examples
 
 **Files:**
+
 - Modify: `agent-frameworks/langgraph/examples/basic_agent.py`
 - Modify: `agent-frameworks/langgraph/examples/workflow_agent.py`
 - Modify: `agent-frameworks/langgraph/docs/LANGRAPH_GUIDE.md`
@@ -83,6 +88,7 @@
 ### Task 6: Tutorials and Repository Polish
 
 **Files:**
+
 - Modify: `tutorials/loop-engineering-101.md`
 - Modify: `tutorials/dag-workflows-guide.md`
 - Modify: `tutorials/graph-rag-tutorial.md`

@@ -3,12 +3,12 @@
 No single framework wins every agent project. Choose based on control flow,
 state, deployment, observability, and the team’s preferred ecosystem.
 
-| Framework | Best Fit | Strengths | Watchouts |
-| --- | --- | --- | --- |
-| OpenAI Agents SDK | Python apps using OpenAI models and tools | Small primitive set, tracing, handoffs, guardrails, sessions | Live runs require API credentials |
-| LangGraph | Stateful graph workflows | Explicit nodes, edges, persistence, streaming, human checkpoints | More structure than simple apps need |
-| Semantic Kernel / Microsoft ecosystem | Enterprise plugin integration | Plugins, Azure integration, .NET/Python/Java support | Product surface changes across Azure/Copilot services |
-| Custom loop | Deterministic internal automation | Full control, easy tests | You own orchestration and observability |
+| Framework                             | Best Fit                                  | Strengths                                                        | Watchouts                                             |
+| ------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------- |
+| OpenAI Agents SDK                     | Python apps using OpenAI models and tools | Small primitive set, tracing, handoffs, guardrails, sessions     | Live runs require API credentials                     |
+| LangGraph                             | Stateful graph workflows                  | Explicit nodes, edges, persistence, streaming, human checkpoints | More structure than simple apps need                  |
+| Semantic Kernel / Microsoft ecosystem | Enterprise plugin integration             | Plugins, Azure integration, .NET/Python/Java support             | Product surface changes across Azure/Copilot services |
+| Custom loop                           | Deterministic internal automation         | Full control, easy tests                                         | You own orchestration and observability               |
 
 ```mermaid
 flowchart TD
