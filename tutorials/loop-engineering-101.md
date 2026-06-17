@@ -1,73 +1,45 @@
-# Loop Engineering 101: Complete Beginner's Guide
+# Loop Engineering 101
 
-## 🎯 AI Agent Prompt
+Loop engineering is the practice of wrapping AI calls in a controlled system:
+plan, act, verify, and retry with feedback. It is the next step after prompt
+engineering because it treats model output as one part of a larger workflow.
 
-You are an expert in Loop Engineering. Create a comprehensive beginner's guide that covers:
+```mermaid
+flowchart LR
+  Goal --> Attempt
+  Attempt --> Check
+  Check -- pass --> Ship
+  Check -- fail --> Feedback
+  Feedback --> Attempt
+```
 
-### 1. WHAT IS LOOP ENGINEERING?
-- Definition and concept
-- Historical context (from prompts to loops)
-- Why it's important
-- Real-world applications
+## From Prompts to Loops
 
-### 2. FROM PROMPT ENGINEERING TO LOOP ENGINEERING
-- Evolution of AI interaction
-- Limitations of prompt engineering
-- Advantages of loop engineering
-- The paradigm shift
+A prompt asks for an answer. A loop asks for a result and keeps checking until a
+verifier accepts it. This matters for code generation, document analysis, RAG,
+data extraction, and any task where correctness is measurable.
 
-### 3. CORE CONCEPTS
-- What is a loop?
-- Loop components (action, observation, reasoning, decision)
-- Loop patterns (retry, plan-execute-verify, explore-narrow, etc.)
-- Termination conditions
+## First Loop
 
-### 4. LOOP ENGINEERING IN PRACTICE
-- Setting up your first loop
-- Choosing the right pattern
-- Defining goals and verification
-- Error handling
+Run the Python retry example:
 
-### 5. TOOLS AND TECHNOLOGIES
-- Claude Code
-- Cursor
-- MindStudio
-- LangGraph
-- Custom implementations
+```bash
+python3 loop-engineering/examples/python/retry_loop.py
+```
 
-### 6. EXAMPLES
-- Simple retry loop
-- Plan-execute-verify loop
-- Multi-agent loop
-- Human-in-the-loop
+It first emits broken code, uses the verifier failure as memory, then retries
+with a corrected implementation.
 
-### 7. BEST PRACTICES
-- Goal definition
-- Context management
-- Error handling
-- Cost management
-- Security considerations
+## Common Loop Types
 
-### 8. COMMON PITFALLS
-- Infinite loops
-- Context overflow
-- Poor goal definition
-- Missing tool access
-- No termination conditions
+| Loop | Use Case |
+| --- | --- |
+| Retry | Flaky calls, generated code repair |
+| Plan-execute-verify | Multi-step tasks with checkpoints |
+| Review loop | Human or model critique before delivery |
+| Multi-agent | Specialized roles coordinated by shared state |
 
-### 9. ADVANCED TOPICS
-- Worktrees
-- Skills
-- Connectors
-- Sub-agents
-- Memory
+## Exercise
 
-### 10. RESOURCES
-- Books
-- Articles
-- Communities
-- Tools
-
-Include code examples, diagrams, and practical exercises for each section.
-
-This should be a complete guide that takes someone from zero to productive with Loop Engineering.
+Modify `bug_fixing_demo()` so the first attempt raises an exception instead of
+returning bad code. Confirm the retry context records `last_exception`.

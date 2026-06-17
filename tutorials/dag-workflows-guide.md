@@ -1,68 +1,42 @@
-# DAG Workflows Guide: Orchestrating AI Agents
+# DAG Workflows Guide
 
-## 🎯 AI Agent Prompt
+DAG workflows make dependencies explicit. For AI agents, this prevents a common
+failure mode: a model starts writing final output before upstream evidence,
+tests, or review exist.
 
-You are an expert in DAG-based workflows for AI agents. Create a comprehensive guide covering:
+```mermaid
+flowchart TD
+  Ingest --> Extract
+  Extract --> Analyze
+  Analyze --> Draft
+  Draft --> Verify
+```
 
-### 1. INTRODUCTION TO DAG WORKFLOWS
-- What are DAGs?
-- Why DAGs for AI agents?
-- DAGs vs. other orchestration patterns
-- Real-world use cases
+## Build the First DAG
 
-### 2. DAG FUNDAMENTALS
-- Nodes and edges
-- Directed vs. undirected
-- Acyclic property
-- Topological sorting
+```python
+dag = DAG()
+dag.add_node("collect", lambda ctx: ["a", "b"])
+dag.add_node("summarize", lambda ctx: len(ctx["results"]["collect"]))
+dag.add_edge("collect", "summarize")
+results = DAGExecutor(dag).run()
+```
 
-### 3. DESIGNING DAG WORKFLOWS
-- Identifying tasks
-- Defining dependencies
-- Creating the graph structure
-- Validating the DAG
+## Add Branching
 
-### 4. IMPLEMENTATION APPROACHES
-- In-memory execution
-- Distributed execution
-- Persistent storage
-- Dynamic modification
+Conditional DAGs route based on state:
 
-### 5. DAG + AI AGENTS
-- Mapping agents to nodes
-- Context passing
-- Error handling
-- Monitoring
+```python
+workflow = build_code_change_workflow(change_needed=False)
+assert workflow.run({})["visited"] == ["inspect", "skip"]
+```
 
-### 6. PRACTICAL EXAMPLES
-- Simple workflow
-- Complex workflow
-- Conditional workflow
-- Parallel workflow
+## Combine DAGs and Loops
 
-### 7. TOOLS AND FRAMEWORKS
-- Airflow
-- Prefect
-- Dagster
-- Custom implementations
+Use DAGs for order and loops for resilience. A `write_code` node can retry until
+tests pass while the larger DAG still controls when review and docs happen.
 
-### 8. INTEGRATION WITH AI SYSTEMS
-- Agent orchestration
-- Tool calling
-- State management
-- Result aggregation
+## Exercise
 
-### 9. BEST PRACTICES
-- Workflow design
-- Error handling
-- Performance optimization
-- Testing
-- Debugging
-
-### 10. ADVANCED TOPICS
-- Dynamic DAGs
-- Nested DAGs
-- DAGs with loops
-- Distributed DAGs
-
-Include code examples, architecture diagrams, and practical implementation tips.
+Add a `security_review` node after `test` in `dag-workflows/examples/advanced_dag.py`.
+Update the branch test to expect it before `document`.

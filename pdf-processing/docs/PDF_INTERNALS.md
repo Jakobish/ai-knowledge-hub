@@ -1,93 +1,61 @@
-# PDF Internals: Complete Guide
+# PDF Internals for Developers and Forensic Analysts
 
-## 🎯 AI Agent Prompt
+A PDF is a graph of numbered objects plus a cross-reference table or stream that
+tells readers where those objects live. It is not just a page image.
 
-You are an expert in PDF file format and internals. Create a comprehensive guide covering:
+```text
+%PDF-1.7
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+...
+xref
+trailer
+<< /Root 1 0 R >>
+%%EOF
+```
 
-### 1. PDF FILE STRUCTURE
-- PDF file format overview
-- Binary structure and objects
-- Cross-reference table
-- Trailer dictionary
-- File header and body
+## Core Structures
 
-### 2. PDF OBJECTS
-- Object types (boolean, integer, real, string, etc.)
-- Indirect objects and references
-- Streams and filters
-- Dictionary objects
-- Array objects
+| Structure | Purpose |
+| --- | --- |
+| Header | Declares the PDF version |
+| Object | Stores dictionaries, arrays, streams, strings, and names |
+| Stream | Holds compressed page content, images, fonts, or metadata |
+| XRef | Maps object numbers to byte offsets |
+| Trailer | Points to the catalog and info dictionaries |
 
-### 3. PAGE STRUCTURE
-- Page tree
-- Page objects
-- Content streams
-- Graphics state
-- Text rendering
+## Text Extraction
 
-### 4. CONTENT STREAMS
-- PDF operators
-- Path construction
-- Text showing
-- Graphics state operators
-- Color operators
+PDF text appears inside page content streams. Common operators:
 
-### 5. FONTS AND TEXT
-- Font dictionaries
-- Encoding
-- Text positioning
-- Text rendering modes
-- Unicode support
+- `Tj`: show one string.
+- `TJ`: show an array of strings and spacing adjustments.
+- `BT` / `ET`: begin and end a text object.
 
-### 6. IMAGES AND GRAPHICS
-- Image objects
-- Color spaces
-- Patterns
-- Transparency
-- Shading
+Compressed streams often use `/Filter /FlateDecode`, which can be inflated with
+zlib before scanning operators.
 
-### 7. INTERACTIVE FEATURES
-- Annotations
-- Actions
-- JavaScript
-- Forms
-- Links
+## Metadata and Forensics
 
-### 8. METADATA AND PROPERTIES
-- Document information dictionary
-- XMP metadata
-- Custom metadata
-- Digital signatures
-- Encryption
+Look for:
 
-### 9. PDF VARIANTS
-- PDF/A (Archival)
-- PDF/X (Exchange)
-- PDF/E (Engineering)
-- PDF/UA (Universal Accessibility)
+- `/Title`, `/Author`, `/Producer`, `/Creator`, `/CreationDate`.
+- Embedded JavaScript: `/JavaScript` or `/JS`.
+- Incremental updates: multiple `%%EOF` markers.
+- Embedded files: `/EmbeddedFiles`.
+- Object streams that hide many compressed objects.
 
-### 10. TOOLS AND LIBRARIES
-- PyPDF2
-- pdfminer.six
-- PyMuPDF (fitz)
-- pdf2image
-- qpdf
-- ExifTool
+## Minimal Hex View
 
-### 11. ADVANCED TOPICS
-- PDF forensics
-- PDF manipulation
-- PDF generation
-- PDF optimization
-- PDF security
+```text
+25 50 44 46 2d 31 2e 37 0a
+%  P  D  F  -  1  .  7
+```
 
-### 12. PRACTICAL EXAMPLES
-- Extracting text with formatting
-- Extracting images
-- Analyzing metadata
-- Detecting anomalies
-- Modifying PDFs
+## Practical Guidance
 
-Include code examples, hex dumps, and practical tools for each section.
-
-This should be the definitive guide to PDF internals for developers and forensic analysts.
+Use mature parsers such as pypdf, pdfminer.six, PyMuPDF, or qpdf for production.
+Use small raw-byte tools for triage, testing, and forensic sanity checks. The
+examples in `../examples` show how to inspect headers, streams, text operators,
+OCR extension points, metadata, hashes, and suspicious JavaScript markers.

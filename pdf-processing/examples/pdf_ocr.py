@@ -1,59 +1,65 @@
+"""OCR pipeline skeleton for scanned PDFs.
+
+The pipeline is dependency-injected: pass a renderer and OCR engine in
+production, or use the deterministic demo adapters for tests.
 """
-PDF OCR Processing
-==================
 
-AI Agent Prompt:
-----------------
-You are an expert in OCR and PDF processing. Implement a PDF OCR pipeline:
+from __future__ import annotations
 
-1. OCR PIPELINE:
-   - Detect if PDF contains scanned images
-   - Extract images from PDF
-   - Perform OCR on images
-   - Combine OCR text with native text
-   - Maintain text positioning
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Protocol
 
-2. IMPLEMENTATION:
-   - Use pytesseract for OCR
-   - Use OpenCV for image preprocessing
-   - Support for multiple OCR engines
-   - Language support
-   - Text post-processing
 
-3. IMAGE PREPROCESSING:
-   - Binarization
-   - Deskewing
-   - Noise removal
-   - Contrast enhancement
-   - Resolution adjustment
+class PageRenderer(Protocol):
+    def render(self, pdf_path: Path) -> list[bytes]:
+        ...
 
-4. ADVANCED FEATURES:
-   - Layout analysis
-   - Text line detection
-   - Word detection
-   - Confidence scoring
-   - Multi-language support
 
-5. EXAMPLE:
-   - Process a scanned PDF:
-     * Extract images
-     * Preprocess images
-     * Perform OCR
-     * Combine results
-     * Output structured text
+class OCREngine(Protocol):
+    def recognize(self, image_bytes: bytes) -> str:
+        ...
 
-6. PERFORMANCE:
-   - GPU acceleration
-   - Batch processing
-   - Memory management
-   - Progress tracking
 
-7. INTEGRATION:
-   - Connect with AI agents for:
-     * Text understanding
-     * Information extraction
-     * Document analysis
-   - Support for different OCR services
+@dataclass
+class OCRPage:
+    page_number: int
+    text: str
+    confidence: float
 
-This should be a complete OCR pipeline for scanned PDFs.
-"""
+
+class PDFOCRPipeline:
+    def __init__(self, renderer: PageRenderer, engine: OCREngine, min_confidence: float = 0.5) -> None:
+        self.renderer = renderer
+        self.engine = engine
+        self.min_confidence = min_confidence
+
+    def run(self, pdf_path: str | Path) -> list[OCRPage]:
+        pages = []
+        for index, image in enumerate(self.renderer.render(Path(pdf_path)), start=1):
+            text = self.engine.recognize(image).strip()
+            confidence = 0.9 if text else 0.0
+            if confidence >= self.min_confidence:
+                pages.append(OCRPage(index, text, confidence))
+        return pages
+
+
+class DemoRenderer:
+    def render(self, pdf_path: Path) -> list[bytes]:
+        return [pdf_path.read_bytes()]
+
+
+class DemoOCREngine:
+    def recognize(self, image_bytes: bytes) -> str:
+        marker = b"OCR:"
+        if marker in image_bytes:
+            return image_bytes.split(marker, 1)[1].decode("utf-8", errors="ignore")
+        return ""
+
+
+if __name__ == "__main__":
+    import sys
+
+    pipeline = PDFOCRPipeline(DemoRenderer(), DemoOCREngine())
+    for page in pipeline.run(sys.argv[1]):
+        print(f"page {page.page_number}: {page.text}")

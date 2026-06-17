@@ -1,23 +1,11 @@
-# LangGraph: Agent Workflow Framework
+# LangGraph
 
-## 🎯 Purpose
-LangGraph is a framework for building complex agent workflows using graphs. This directory contains examples and documentation for LangGraph.
+LangGraph is a graph-oriented framework for stateful agent workflows. This
+section includes local examples that mirror LangGraph patterns without requiring
+API credentials.
 
-## 📚 For AI Agents:
-You are an expert in LangGraph. Your tasks:
+## Contents
 
-1. Explain LangGraph concepts and architecture
-2. Show how to build agent workflows with LangGraph
-3. Implement practical examples
-4. Compare with other frameworks
-5. Provide best practices
-
-## 🔗 Related Topics
-- Graph-based workflows
-- Agent orchestration
-- State management
-- Tool integration
-
-## 📌 Structure
-- /examples: Practical LangGraph implementations
-- /docs: Documentation and guides
+- `examples/basic_agent.py`: tool-using agent with offline fallback and reference snippet.
+- `examples/workflow_agent.py`: software workflow with review and repair.
+- `docs/LANGRAPH_GUIDE.md`: concise guide to `StateGraph` concepts and usage.

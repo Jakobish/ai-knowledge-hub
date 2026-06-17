@@ -1,82 +1,46 @@
-# Microsoft Agents Framework: Complete Guide
+# Microsoft Agent Framework Guide
 
-## 🎯 AI Agent Prompt
+Microsoft's agent ecosystem is centered on Azure AI services, Copilot
+extensions, AutoGen, and Semantic Kernel. For Python developers, Semantic Kernel
+is the most practical public reference point for plugin-oriented agents:
+business functions are exposed as callable plugins, and the agent runtime routes
+model requests to those functions.
 
-You are an expert in Microsoft Agents Framework. Create a comprehensive guide covering:
+```mermaid
+flowchart LR
+  User --> Agent
+  Agent --> Planner
+  Planner --> Plugin
+  Plugin --> BusinessAPI
+  BusinessAPI --> Agent
+```
 
-### 1. INTRODUCTION
-- What is Microsoft Agents Framework?
-- Microsoft's AI vision
-- Framework components
-- Target audience
+## Core Ideas
 
-### 2. ARCHITECTURE
-- Framework structure
-- Core components
-- Execution model
-- Integration points
+- **Agent:** Holds instructions, model configuration, and available plugins.
+- **Plugin:** A grouped set of callable business functions.
+- **Function calling:** The model chooses a plugin function with structured
+  arguments.
+- **Planner/orchestrator:** Coordinates multi-step calls when one function is
+  not enough.
+- **Connectors:** Bind the runtime to Azure OpenAI, OpenAI, local models, or
+  enterprise APIs.
 
-### 3. GETTING STARTED
-- Prerequisites
-- Installation
-- Configuration
-- First agent
+## Example Plugin Shape
 
-### 4. AGENT DEVELOPMENT
-- Agent definition
-- Capabilities
-- Tools
-- State management
+```python
+class DocsPlugin:
+    def summarize(self, text: str) -> str:
+        return text[:200]
+```
 
-### 5. MICROSOFT ECOSYSTEM INTEGRATION
-- Azure AI services
-- Azure OpenAI
-- Azure Cognitive Services
-- Microsoft Graph API
-- Azure Storage
+## Production Guidance
 
-### 6. WORKFLOW DESIGN
-- Simple workflows
-- Complex workflows
-- Conditional logic
-- Parallel execution
+- Keep plugin functions small and idempotent.
+- Validate inputs before calling internal systems.
+- Log tool calls, latency, and model-chosen arguments.
+- Add human approval around write operations.
+- Use Azure identity and managed secrets rather than hard-coded keys.
 
-### 7. ENTERPRISE FEATURES
-- Security
-- Scalability
-- Monitoring
-- Compliance
-- Deployment
-
-### 8. TOOL INTEGRATION
-- Azure services
-- Microsoft 365
-- Custom tools
-- Third-party integrations
-
-### 9. ADVANCED TOPICS
-- Multi-agent systems
-- Custom models
-- Hybrid AI systems
-- Performance optimization
-
-### 10. COMPARISON
-- MS Agents vs. LangGraph
-- MS Agents vs. OpenAI SDK
-- MS Agents vs. custom solutions
-- When to use MS Agents
-
-### 11. CASE STUDIES
-- Enterprise document processing
-- Customer support automation
-- Business process automation
-- Data analysis pipelines
-
-### 12. BEST PRACTICES
-- Agent design
-- Error handling
-- Testing
-- Debugging
-- Monitoring
-
-Include code examples, architecture diagrams, and integration patterns.
+The local example in `../examples/ms_agent_example.py` demonstrates the plugin
+shape without requiring Azure credentials.

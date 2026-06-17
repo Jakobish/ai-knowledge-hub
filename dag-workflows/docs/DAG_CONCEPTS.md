@@ -1,60 +1,74 @@
 # DAG Concepts for AI Agent Systems
 
-## 🎯 AI Agent Prompt
+A directed acyclic graph, or DAG, is a workflow where edges point from earlier
+work to later work and cycles are forbidden. DAGs are useful for agent systems
+because they make dependencies explicit.
 
-You are an expert in DAG theory and its application to AI systems. Create a comprehensive guide covering:
+```mermaid
+flowchart LR
+  Collect --> Analyze
+  Analyze --> Draft
+  Analyze --> Cite
+  Draft --> Review
+  Cite --> Review
+```
 
-### 1. FUNDAMENTAL CONCEPTS
-- What is a DAG (Directed Acyclic Graph)?
-- Nodes, edges, and directedness
-- Why acyclic is important for workflows
-- Topological sorting and its significance
+## Why DAGs Help Agents
 
-### 2. DAGS IN AI SYSTEMS
-- Why DAGs are perfect for AI workflows
-- Comparison with other orchestration patterns
-- Real-world examples of DAG-based AI systems
-- Advantages over linear workflows
+- They reveal which tasks can run in parallel.
+- They prevent hidden dependency loops.
+- They create stable checkpoints for retries.
+- They make observability easier because every node has inputs and outputs.
 
-### 3. DESIGN PATTERNS
-- Fan-out/fan-in patterns
-- Diamond patterns
-- Conditional patterns
-- Loop patterns within DAGs
+## Topological Sorting
 
-### 4. IMPLEMENTATION APPROACHES
-- In-memory DAG execution
-- Distributed DAG execution
-- Persistent DAG storage
-- Dynamic DAG modification
+Topological sort returns an order where every dependency appears before the node
+that needs it. If no such order exists, the graph has a cycle and should not run.
 
-### 5. DAG + AI AGENTS
-- Mapping agents to DAG nodes
-- Context passing between agents
-- Error handling in distributed agent DAGs
-- Monitoring agent DAGs
+```python
+dag.add_edge("collect", "rank")
+dag.add_edge("rank", "summarize")
+order = dag.topological_sort()  # ["collect", "rank", "summarize"]
+```
 
-### 6. TOOLS AND FRAMEWORKS
-- Comparison of DAG frameworks:
-  * Airflow
-  * Prefect
-  * Dagster
-  * Luigi
-- When to use each
-- Integration with AI systems
+## DAGs and Loops
 
-### 7. PERFORMANCE CONSIDERATIONS
-- DAG size limitations
-- Memory management
-- Parallel execution
-- Distributed execution
+DAGs and loops solve different problems:
 
-### 8. DEBUGGING AND TESTING
-- Visualizing DAGs
-- Testing DAG workflows
-- Debugging failed executions
-- Logging strategies
+| Pattern | Best For |
+| --- | --- |
+| DAG | Known dependency structure |
+| Retry loop | Uncertain success of one step |
+| Plan-execute-verify | Sequential work with validation |
+| Conditional DAG | Branching decisions |
 
-Include diagrams (Mermaid syntax), code examples, and practical scenarios for each section.
+In production, each DAG node often contains a loop. For example, a `write_code`
+node may retry until tests pass, while the overall DAG still ensures review
+happens only after implementation.
 
-This should be a complete reference for understanding and implementing DAGs in AI agent systems.
+## Validation Rules
+
+Before executing a workflow:
+
+1. Every referenced node exists.
+2. The graph has no cycles.
+3. Inputs required by each node are produced upstream.
+4. Failure policy is clear: retry, skip, compensate, or stop.
+5. Outputs are serializable enough for logs and checkpoints.
+
+## Real-World Scenario
+
+A documentation agent might run:
+
+```mermaid
+flowchart TD
+  ScanRepo --> ExtractAPIs
+  ScanRepo --> ReadGuides
+  ExtractAPIs --> GenerateExamples
+  ReadGuides --> GenerateExamples
+  GenerateExamples --> VerifySnippets
+  VerifySnippets --> PublishDocs
+```
+
+The examples in `../examples` implement a basic executor, a conditional DAG,
+and a DAG whose nodes use retry loops.

@@ -1,23 +1,17 @@
-# DAG Workflows for AI Agents
+# DAG Workflows
 
-## 🎯 Purpose
-Directed Acyclic Graphs (DAGs) are fundamental to orchestrating complex AI agent workflows. This directory contains examples and documentation for building DAG-based systems.
+Directed acyclic graphs are a reliable way to orchestrate multi-step AI agent
+workflows with explicit dependencies.
 
-## 📚 For AI Agents:
-You are an expert in DAG-based workflow orchestration. Your tasks:
+## Contents
 
-1. Explain DAG concepts in the context of AI agents
-2. Show how to design DAGs for different workflow patterns
-3. Implement DAG execution engines
-4. Demonstrate integration with AI agents
-5. Provide best practices for DAG design
+- `examples/basic_dag.py`: dependency validation, topological sort, and execution.
+- `examples/advanced_dag.py`: conditional routing for code-change workflows.
+- `examples/dag_with_loops.py`: DAG-shaped orchestration with retry loops inside nodes.
+- `docs/DAG_CONCEPTS.md`: conceptual guide with diagrams and production checks.
 
-## 🔗 Related Topics
-- Loop Engineering
-- Workflow orchestration
-- Task scheduling
-- Dependency management
+## Run
 
-## 📌 Structure
-- /examples: Practical DAG implementations
-- /docs: Conceptual documentation and guides
+```bash
+python3 -m unittest tests/test_dag_examples.py
+```

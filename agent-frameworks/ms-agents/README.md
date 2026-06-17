@@ -1,23 +1,11 @@
-# Microsoft Agents Framework
+# Microsoft Agent Ecosystem
 
-## 🎯 Purpose
-Microsoft Agents Framework is a set of tools for building AI agent systems. This directory contains examples and documentation for the framework.
+This section focuses on Microsoft-style agent patterns, especially
+plugin-oriented design used by Semantic Kernel and enterprise integrations.
 
-## 📚 For AI Agents:
-You are an expert in Microsoft Agents Framework. Your tasks:
+## Contents
 
-1. Explain the framework architecture
-2. Show how to build agents with the framework
-3. Implement practical examples
-4. Integrate with Microsoft ecosystem
-5. Provide best practices
+- `examples/ms_agent_example.py`: local plugin/function calling model.
+- `docs/MS_AGENTS_GUIDE.md`: architecture, plugin concepts, and production guidance.
 
-## 🔗 Related Topics
-- Microsoft AI ecosystem
-- Azure services
-- .NET integration
-- Enterprise AI
-
-## 📌 Structure
-- /examples: Practical implementations
-- /docs: Documentation and guides
+The local example does not require Azure credentials.

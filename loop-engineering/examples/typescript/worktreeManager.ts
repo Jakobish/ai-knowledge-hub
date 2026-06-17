@@ -1,51 +1,78 @@
 /**
- * Worktree Manager for AI Agents
- * ===============================
+ * Git worktree manager for parallel AI-agent development.
  *
- * AI Agent Prompt:
- * ----------------
- * You are an expert in Git and TypeScript. Implement a Worktree Manager for AI Agents:
- *
- * 1. PURPOSE:
- *    - Enable multiple agents to work in parallel without conflicts
- *    - Isolate changes in separate worktrees
- *    - Manage git worktrees programmatically
- *
- * 2. IMPLEMENTATION:
- *    - Worktree class with create/remove/list operations
- *    - AgentWorktree class that associates agents with worktrees
- *    - Conflict detection and resolution
- *    - Cleanup mechanisms
- *
- * 3. FEATURES:
- *    - Create worktree from any branch/commit
- *    - Switch between worktrees
- *    - Merge changes from worktree to main
- *    - Automatic cleanup of stale worktrees
- *
- * 4. EXAMPLE WORKFLOW:
- *    - Agent 1 works on feature A in worktree-feature-a
- *    - Agent 2 works on bug fix in worktree-bugfix
- *    - Both can work simultaneously without conflicts
- *    - Changes are merged when ready
- *
- * 5. GIT INTEGRATION:
- *    - Use libgit2 or simple-git library
- *    - Handle git errors properly
- *    - Support for different git configurations
- *    - Conflict resolution strategies
- *
- * 6. AGENT INTEGRATION:
- *    - Each agent gets its own worktree
- *    - Context is isolated per worktree
- *    - Changes can be reviewed before merging
- *    - Support for collaborative work
- *
- * 7. BEST PRACTICES:
- *    - Add proper error handling for git operations
- *    - Include cleanup mechanisms
- *    - Add logging for all operations
- *    - Support for different git hosts (GitHub, GitLab, etc.)
- *
- * This should enable safe, parallel development by multiple AI agents.
+ * The class wraps `git worktree` commands with input validation and logging.
  */
+
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { resolve } from "node:path";
+
+const execFileAsync = promisify(execFile);
+
+export interface WorktreeInfo {
+  path: string;
+  head: string;
+  branch?: string;
+}
+
+export class WorktreeManager {
+  constructor(private readonly repoPath: string = process.cwd()) {}
+
+  async create(branch: string, path: string, base = "HEAD"): Promise<string> {
+    this.validateName(branch);
+    const target = resolve(path);
+    await this.git(["worktree", "add", "-b", branch, target, base]);
+    return target;
+  }
+
+  async remove(path: string, force = false): Promise<void> {
+    const args = ["worktree", "remove"];
+    if (force) args.push("--force");
+    args.push(resolve(path));
+    await this.git(args);
+  }
+
+  async list(): Promise<WorktreeInfo[]> {
+    const output = await this.git(["worktree", "list", "--porcelain"]);
+    const blocks = output.trim().split(/\n\n+/).filter(Boolean);
+    return blocks.map((block) => {
+      const info: WorktreeInfo = { path: "", head: "" };
+      for (const line of block.split("\n")) {
+        const [key, ...rest] = line.split(" ");
+        const value = rest.join(" ");
+        if (key === "worktree") info.path = value;
+        if (key === "HEAD") info.head = value;
+        if (key === "branch") info.branch = value.replace("refs/heads/", "");
+      }
+      return info;
+    });
+  }
+
+  private async git(args: string[]): Promise<string> {
+    try {
+      console.info(`git ${args.join(" ")}`);
+      const { stdout } = await execFileAsync("git", args, { cwd: this.repoPath });
+      return stdout;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`git ${args.join(" ")} failed: ${message}`);
+    }
+  }
+
+  private validateName(name: string): void {
+    if (!/^[A-Za-z0-9._/-]+$/.test(name)) {
+      throw new Error(`Unsafe branch name: ${name}`);
+    }
+  }
+}
+
+if (require.main === module) {
+  new WorktreeManager()
+    .list()
+    .then((worktrees) => console.table(worktrees))
+    .catch((error) => {
+      console.error(error);
+      process.exitCode = 1;
+    });
+}

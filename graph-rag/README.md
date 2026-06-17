@@ -1,23 +1,17 @@
-# Graph RAG: Knowledge Graphs for AI Agents
+# Graph RAG
 
-## 🎯 Purpose
-Graph RAG (Retrieval-Augmented Generation with Knowledge Graphs) enhances traditional RAG by using graph structures to represent relationships between entities. This directory contains implementations and documentation for Graph RAG systems.
+Graph RAG combines retrieval-augmented generation with explicit knowledge graph
+relationships so answers can use both text similarity and entity traversal.
 
-## 📚 For AI Agents:
-You are an expert in Graph RAG and knowledge graph systems. Your tasks:
+## Contents
 
-1. Explain Graph RAG concepts and advantages
-2. Show how to build knowledge graphs
-3. Implement Graph RAG retrieval systems
-4. Demonstrate integration with AI agents
-5. Provide best practices for graph construction
+- `examples/basic_graph_rag.py`: in-memory document/entity graph retrieval.
+- `examples/knowledge_graph.py`: reusable node and relationship builder.
+- `examples/graph_rag_with_loops.py`: verification loop that repairs missing evidence.
+- `docs/GRAPH_RAG_GUIDE.md`: implementation guide and retrieval architecture.
 
-## 🔗 Related Topics
-- Traditional RAG
-- Knowledge graphs
-- Semantic search
-- Entity relationship modeling
+## Run
 
-## 📌 Structure
-- /examples: Practical Graph RAG implementations
-- /docs: Conceptual documentation and guides
+```bash
+python3 -m unittest tests/test_graph_rag_examples.py
+```

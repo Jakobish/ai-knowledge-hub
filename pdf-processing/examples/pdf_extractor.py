@@ -1,58 +1,63 @@
-"""
-PDF Content Extractor
-====================
+"""Dependency-light PDF text and structure extractor."""
 
-AI Agent Prompt:
-----------------
-You are an expert in PDF processing and Python. Implement a comprehensive PDF content extractor:
+from __future__ import annotations
 
-1. EXTRACTION CAPABILITIES:
-   - Extract raw text from PDFs
-   - Extract text with formatting (bold, italic, etc.)
-   - Extract text with position information
-   - Extract images from PDFs
-   - Extract metadata (author, title, etc.)
-   - Extract document structure (headings, paragraphs, etc.)
+from dataclasses import dataclass
+from pathlib import Path
+import re
+import zlib
 
-2. IMPLEMENTATION:
-   - Use PyPDF2 or pdfminer.six for text extraction
-   - Use pdf2image or PyMuPDF for image extraction
-   - Support for both text-based and scanned PDFs
-   - Handle encrypted PDFs
-   - Process multi-page documents
 
-3. ADVANCED FEATURES:
-   - Text layout analysis
-   - Table detection and extraction
-   - Form field extraction
-   - Annotation extraction
-   - Bookmark extraction
+@dataclass
+class PDFExtraction:
+    pages: int
+    text: str
+    streams: int
+    warnings: list[str]
 
-4. EXAMPLE:
-   - Create a function that extracts:
-     * All text with formatting
-     * All images
-     * All metadata
-     * Document structure
-   - Process a sample PDF and display results
 
-5. PERFORMANCE:
-   - Batch processing of multiple PDFs
-   - Memory-efficient processing
-   - Parallel processing for large documents
-   - Progress reporting
+def _decode_pdf_string(value: bytes) -> str:
+    return value.decode("latin-1", errors="ignore").replace(r"\(", "(").replace(r"\)", ")")
 
-6. ERROR HANDLING:
-   - Handle corrupted PDFs
-   - Handle password-protected PDFs
-   - Handle different PDF versions
-   - Graceful degradation
 
-7. OUTPUT FORMATS:
-   - JSON output
-   - Structured data output
-   - HTML output
-   - Markdown output
+def extract_literal_text(data: bytes) -> str:
+    parts = []
+    for match in re.finditer(rb"\((.*?)\)\s*Tj", data, flags=re.S):
+        parts.append(_decode_pdf_string(match.group(1)))
+    for array in re.finditer(rb"\[(.*?)\]\s*TJ", data, flags=re.S):
+        parts.extend(_decode_pdf_string(item) for item in re.findall(rb"\((.*?)\)", array.group(1), flags=re.S))
+    return "\n".join(part for part in parts if part.strip())
 
-This should be a production-ready PDF extraction tool that can handle various PDF types.
-"""
+
+def extract_streams(data: bytes) -> list[bytes]:
+    streams = []
+    for match in re.finditer(rb"stream\r?\n(.*?)\r?\nendstream", data, flags=re.S):
+        stream = match.group(1)
+        prefix = data[max(0, match.start() - 300):match.start()]
+        if b"FlateDecode" in prefix:
+            try:
+                stream = zlib.decompress(stream)
+            except zlib.error:
+                pass
+        streams.append(stream)
+    return streams
+
+
+def extract_pdf(path: str | Path) -> PDFExtraction:
+    data = Path(path).read_bytes()
+    warnings: list[str] = []
+    if not data.startswith(b"%PDF-"):
+        warnings.append("missing PDF header")
+
+    streams = extract_streams(data)
+    combined = data + b"\n" + b"\n".join(streams)
+    text = extract_literal_text(combined)
+    pages = len(re.findall(rb"/Type\s*/Page\b", data))
+    return PDFExtraction(pages=pages, text=text, streams=len(streams), warnings=warnings)
+
+
+if __name__ == "__main__":
+    import sys
+
+    for pdf in sys.argv[1:]:
+        print(extract_pdf(pdf))

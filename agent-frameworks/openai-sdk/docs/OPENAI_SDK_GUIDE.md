@@ -1,87 +1,43 @@
-# OpenAI Agents SDK: Complete Guide
+# OpenAI Agents SDK Guide
 
-## 🎯 AI Agent Prompt
+The OpenAI Agents SDK is a Python-first runtime for agents with instructions,
+tools, handoffs, guardrails, sessions, tracing, and MCP integration. It uses the
+Responses API by default for OpenAI models and provides an agent loop around
+tool execution.
 
-You are an expert in OpenAI Agents SDK. Create a comprehensive guide covering:
+## Minimal Agent
 
-### 1. INTRODUCTION
-- What is OpenAI Agents SDK?
-- OpenAI's agent vision
-- SDK components
-- Use cases
+```python
+from agents import Agent, Runner
 
-### 2. ARCHITECTURE
-- Agent model
-- Tool calling
-- State management
-- Execution flow
+agent = Agent(name="Assistant", instructions="You are helpful.")
+result = Runner.run_sync(agent, "Write a short release note.")
+print(result.final_output)
+```
 
-### 3. GETTING STARTED
-- Installation
-- Setup
-- Authentication
-- First agent
+## Function Tools
 
-### 4. AGENT CREATION
-- Agent definition
-- Model selection
-- Instructions
-- Tools
+```python
+from agents import Agent, Runner, function_tool
 
-### 5. TOOL INTEGRATION
-- Tool definition
-- Tool schemas
-- Tool execution
-- Error handling
+@function_tool
+def get_build_status(branch: str) -> str:
+    return "green"
 
-### 6. WORKFLOW DESIGN
-- Simple workflows
-- Multi-step workflows
-- Conditional workflows
-- Parallel workflows
+agent = Agent(name="CI helper", instructions="Explain build status.", tools=[get_build_status])
+print(Runner.run_sync(agent, "Check main").final_output)
+```
 
-### 7. ADVANCED FEATURES
-- Multi-agent systems
-- State sharing
-- Error recovery
-- Performance optimization
+## Practical Patterns
 
-### 8. MODEL CONTEXT PROTOCOL (MCP)
-- What is MCP?
-- MCP servers
-- MCP clients
-- Integration with agents
+- Use tools for deterministic operations such as file reads, tests, database
+  queries, and internal APIs.
+- Use handoffs when specialists own different domains.
+- Use guardrails for input/output validation.
+- Use sessions when a user expects memory across turns.
+- Use tracing to debug tool calls and agent delegation.
 
-### 9. INTEGRATION
-- With external APIs
-- With databases
-- With file systems
-- With other services
+## Local Development
 
-### 10. BEST PRACTICES
-- Agent design
-- Tool design
-- Error handling
-- Testing
-- Debugging
-- Monitoring
-
-### 11. COMPARISON
-- OpenAI SDK vs. LangGraph
-- OpenAI SDK vs. MS Agents
-- OpenAI SDK vs. LangChain
-- When to use OpenAI SDK
-
-### 12. CASE STUDIES
-- Code generation assistant
-- Data analysis agent
-- Document processing
-- Customer support
-
-### 13. TROUBLESHOOTING
-- Common errors
-- Debugging techniques
-- Performance issues
-- API limits
-
-Include code examples, architecture diagrams, and practical patterns.
+Set `OPENAI_API_KEY` before running live examples. Keep offline mocks for tests
+so CI does not depend on network or paid model calls.

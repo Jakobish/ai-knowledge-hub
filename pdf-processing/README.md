@@ -1,24 +1,17 @@
-# PDF Processing and Internals for AI Systems
+# PDF Processing
 
-## 🎯 Purpose
-Understanding PDF internals is crucial for building AI systems that work with documents. This directory contains tools and documentation for PDF processing, extraction, and analysis.
+PDF processing for AI systems starts with structure inspection: metadata,
+streams, text operators, OCR needs, and suspicious embedded behavior.
 
-## 📚 For AI Agents:
-You are an expert in PDF internals and document processing. Your tasks:
+## Contents
 
-1. Explain PDF file structure and format
-2. Show how to extract different types of content from PDFs
-3. Implement tools for PDF analysis and manipulation
-4. Demonstrate integration with AI agents for document understanding
-5. Provide best practices for PDF processing
+- `examples/pdf_extractor.py`: dependency-light text and stream extraction.
+- `examples/pdf_ocr.py`: OCR pipeline with injected renderer and engine.
+- `examples/pdf_metadata.py`: metadata, object count, hash, and JavaScript signals.
+- `docs/PDF_INTERNALS.md`: internals guide for developers and forensic analysts.
 
-## 🔗 Related Topics
-- Document AI
-- OCR (Optical Character Recognition)
-- Text extraction
-- Metadata analysis
-- Digital forensics
+## Run
 
-## 📌 Structure
-- /examples: Practical PDF processing tools
-- /docs: Documentation on PDF internals
+```bash
+python3 -m unittest tests/test_pdf_examples.py
+```

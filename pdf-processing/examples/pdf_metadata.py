@@ -1,58 +1,43 @@
-"""
-PDF Metadata Extractor and Analyzer
-====================================
+"""PDF metadata and forensic signal extractor."""
 
-AI Agent Prompt:
-----------------
-You are an expert in PDF metadata and digital forensics. Implement a comprehensive metadata extraction and analysis tool:
+from __future__ import annotations
 
-1. METADATA EXTRACTION:
-   - Standard PDF metadata (title, author, etc.)
-   - XMP metadata
-   - Document information dictionary
-   - Custom metadata
-   - Digital signatures
-   - Encryption information
+from dataclasses import dataclass
+from pathlib import Path
+import hashlib
+import re
 
-2. ADVANCED ANALYSIS:
-   - Metadata validation
-   - Anomaly detection
-   - Timestamps analysis
-   - Author and creator analysis
-   - Version history tracking
 
-3. FORENSIC FEATURES:
-   - Metadata tampering detection
-   - Hidden metadata extraction
-   - Embedded files detection
-   - JavaScript detection
-   - Action detection (links, forms, etc.)
+@dataclass
+class PDFMetadata:
+    version: str | None
+    info: dict[str, str]
+    object_count: int
+    has_javascript: bool
+    sha256: str
 
-4. EXAMPLE:
-   - Create a function that:
-     * Extracts all metadata from a PDF
-     * Analyzes metadata for anomalies
-     * Generates a forensic report
-     * Visualizes metadata relationships
 
-5. OUTPUT:
-   - Structured metadata output
-   - Forensic report
-   - Visualization of metadata
-   - Comparison between multiple PDFs
+def extract_info_dictionary(data: bytes) -> dict[str, str]:
+    info: dict[str, str] = {}
+    for key, value in re.findall(rb"/([A-Za-z]+)\s*\((.*?)\)", data, flags=re.S):
+        info[key.decode("ascii", errors="ignore")] = value.decode("latin-1", errors="ignore")
+    return info
 
-6. INTEGRATION:
-   - Connect with AI agents for:
-     * Metadata understanding
-     * Anomaly explanation
-     * Forensic analysis
-   - Support for batch processing
 
-7. USE CASES:
-   - Document authentication
-   - Malware detection
-   - Compliance checking
-   - Digital investigation
+def analyze_pdf(path: str | Path) -> PDFMetadata:
+    data = Path(path).read_bytes()
+    header = re.match(rb"%PDF-(\d\.\d)", data)
+    return PDFMetadata(
+        version=header.group(1).decode("ascii") if header else None,
+        info=extract_info_dictionary(data),
+        object_count=len(re.findall(rb"\n\d+\s+\d+\s+obj\b", data)),
+        has_javascript=bool(re.search(rb"/JavaScript|/JS\b", data)),
+        sha256=hashlib.sha256(data).hexdigest(),
+    )
 
-This should be a professional-grade PDF metadata analysis tool.
-"""
+
+if __name__ == "__main__":
+    import sys
+
+    for pdf in sys.argv[1:]:
+        print(analyze_pdf(pdf))

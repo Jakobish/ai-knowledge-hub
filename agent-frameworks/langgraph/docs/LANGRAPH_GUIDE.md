@@ -1,93 +1,43 @@
-# LangGraph: Complete Guide
+# LangGraph Guide
 
-## 🎯 AI Agent Prompt
+LangGraph is useful when an agent needs explicit state, nodes, conditional
+edges, persistence, streaming, or human checkpoints. Current LangGraph Python
+docs show two main styles: the `StateGraph` graph API and the functional API.
 
-You are an expert in LangGraph framework. Create a comprehensive guide covering:
+```mermaid
+flowchart LR
+  START --> Agent
+  Agent -->|tool call| Tool
+  Tool --> Agent
+  Agent -->|final| END
+```
 
-### 1. INTRODUCTION
-- What is LangGraph?
-- History and development
-- Core concepts
-- Use cases
+## Minimal Shape
 
-### 2. ARCHITECTURE
-- Graph-based workflows
-- Nodes and edges
-- State management
-- Execution engine
+```python
+from langgraph.graph import StateGraph, START, END
+from typing_extensions import TypedDict
 
-### 3. GETTING STARTED
-- Installation
-- Basic setup
-- First agent
-- Running workflows
+class State(TypedDict):
+    messages: list
 
-### 4. CORE CONCEPTS
-- Agents
-- Tools
-- State
-- Graphs
-- Nodes
+builder = StateGraph(State)
+builder.add_node("agent", call_model)
+builder.add_edge(START, "agent")
+builder.add_edge("agent", END)
+graph = builder.compile()
+```
 
-### 5. BUILDING WORKFLOWS
-- Simple workflows
-- Complex workflows
-- Conditional workflows
-- Parallel workflows
+## Design Tips
 
-### 6. AGENT TYPES
-- Single-agent systems
-- Multi-agent systems
-- Hierarchical agents
-- Collaborative agents
+- Put durable information in state, not hidden globals.
+- Keep node functions small and deterministic where possible.
+- Use conditional edges for routing decisions.
+- Add persistence/checkpointing for long-running or human-reviewed flows.
+- Treat tools as side-effect boundaries and log their inputs and outputs.
 
-### 7. TOOL INTEGRATION
-- Tool definition
-- Tool schemas
-- Tool execution
-- Error handling
+## When to Use It
 
-### 8. STATE MANAGEMENT
-- State definition
-- Context passing
-- Memory management
-- State persistence
-
-### 9. ADVANCED TOPICS
-- Custom nodes
-- Custom edges
-- Dynamic graphs
-- Error recovery
-- Performance optimization
-
-### 10. INTEGRATION
-- With external systems
-- With databases
-- With APIs
-- With other frameworks
-
-### 11. BEST PRACTICES
-- Workflow design
-- Error handling
-- Testing
-- Debugging
-- Monitoring
-
-### 12. COMPARISON
-- LangGraph vs. LangChain
-- LangGraph vs. CrewAI
-- LangGraph vs. custom solutions
-
-### 13. CASE STUDIES
-- Customer support system
-- Software development assistant
-- Research assistant
-- Business process automation
-
-### 14. TROUBLESHOOTING
-- Common errors
-- Debugging techniques
-- Performance issues
-- Integration problems
-
-Include code examples, architecture diagrams, and practical implementation tips.
+Use LangGraph for multi-step workflows, agents that call tools repeatedly,
+approval flows, and graph-shaped control logic. For one model call with one
+response, a direct model API is usually simpler.

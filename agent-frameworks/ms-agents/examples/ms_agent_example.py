@@ -1,59 +1,47 @@
+"""Microsoft agent-style example using plugin concepts.
+
+Microsoft's current public Python guidance commonly centers on Semantic Kernel:
+agents call plugins/functions that wrap business capabilities. This file models
+that pattern locally so it can run without cloud credentials.
 """
-Microsoft Agents Framework Example
-===================================
 
-AI Agent Prompt:
-----------------
-You are an expert in Microsoft Agents Framework and Python/.NET. Implement an example agent:
+from __future__ import annotations
 
-1. SETUP:
-   - Install Microsoft Agents Framework
-   - Set up Azure AI resources
-   - Configure API keys and endpoints
+from dataclasses import dataclass, field
+from typing import Callable
 
-2. AGENT CREATION:
-   - Create a basic agent with:
-     * Azure OpenAI model
-     * Tools and capabilities
-     * State management
-   - Use the framework's SDK
 
-3. TOOLS:
-   - Implement tools for:
-     * Azure services integration
-     * Database access
-     * File operations
-     * Web requests
-   - Tool definitions and schemas
+PluginFunction = Callable[[str], str]
 
-4. WORKFLOW:
-   - Create a workflow that:
-     a) Receives user input
-     b) Processes the input with AI
-     c) Calls appropriate tools
-     d) Returns results to user
-   - Handle errors and edge cases
 
-5. MICROSOFT INTEGRATION:
-   - Connect with:
-     * Azure OpenAI
-     * Azure Cognitive Services
-     * Azure Storage
-     * Microsoft Graph API
-   - Use Microsoft authentication
+@dataclass
+class Plugin:
+    name: str
+    functions: dict[str, PluginFunction] = field(default_factory=dict)
 
-6. EXAMPLE:
-   - Build an agent that can:
-     * Answer questions about Microsoft products
-     * Access Azure resources
-     * Process documents from OneDrive
-     * Send notifications via Teams
+    def add(self, name: str, fn: PluginFunction) -> None:
+        self.functions[name] = fn
 
-7. ENTERPRISE FEATURES:
-   - Security and compliance
-   - Scalability
-   - Monitoring
-   - Logging
 
-This should be a complete example of using Microsoft Agents Framework.
-"""
+@dataclass
+class MicrosoftStyleAgent:
+    name: str
+    plugins: dict[str, Plugin]
+
+    def invoke(self, plugin_name: str, function_name: str, argument: str) -> str:
+        return self.plugins[plugin_name].functions[function_name](argument)
+
+
+def build_agent() -> MicrosoftStyleAgent:
+    docs = Plugin("docs")
+    docs.add("summarize", lambda text: f"Summary: {text[:60]}")
+    docs.add("classify", lambda text: "technical" if "API" in text or "agent" in text.lower() else "general")
+
+    workflow = Plugin("workflow")
+    workflow.add("create_ticket", lambda title: f"TICKET-1 created: {title}")
+
+    return MicrosoftStyleAgent("Knowledge Worker", {"docs": docs, "workflow": workflow})
+
+
+if __name__ == "__main__":
+    print(build_agent().invoke("docs", "classify", "Agent API integration"))

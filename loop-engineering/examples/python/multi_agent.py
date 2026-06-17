@@ -1,57 +1,115 @@
+"""Small multi-agent orchestration framework.
+
+The example models a software-delivery team with planner, developer, reviewer,
+and tester agents.  It is deterministic and local, which makes it useful for
+tests, demos, and architecture discussions before connecting real LLM calls.
 """
-Multi-Agent Orchestration System
-=================================
 
-AI Agent Prompt:
-----------------
-You are an expert in multi-agent systems. Implement a complete multi-agent orchestration framework:
+from __future__ import annotations
 
-1. ARCHITECTURE:
-   - Agent base class with common functionality
-   - Specialized agents: Planner, Developer, Reviewer, Tester
-   - Orchestrator that coordinates between agents
-   - Shared memory/context system
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Callable
+import time
 
-2. IMPLEMENTATION:
-   - Each agent should have:
-     * Unique role and responsibilities
-     * Access to shared context
-     * Ability to call tools
-     * Error handling
 
-3. WORKFLOW:
-   - Planner breaks down complex tasks
-   - Orchestrator assigns tasks to appropriate agents
-   - Agents communicate through shared context
-   - Results are aggregated and verified
+class Role(str, Enum):
+    PLANNER = "planner"
+    DEVELOPER = "developer"
+    REVIEWER = "reviewer"
+    TESTER = "tester"
 
-4. EXAMPLE WORKFLOW:
-   - Implement a complete software development cycle:
-     a) Planner: Creates development plan
-     b) Developer: Writes code
-     c) Reviewer: Checks code quality
-     d) Tester: Runs tests
-     e) Orchestrator: Manages the process
 
-5. ADVANCED FEATURES:
-   - Agent specialization and load balancing
-   - Conflict resolution between agents
-   - Progress monitoring
-   - Resource management (API rate limits, etc.)
+@dataclass
+class Message:
+    sender: str
+    content: str
+    timestamp: float = field(default_factory=time.time)
 
-6. INTEGRATION:
-   - Show how to connect with:
-     * GitHub API (for code changes)
-     * Testing frameworks
-     * Logging systems
-     * Notification systems (Slack, Email)
 
-7. BEST PRACTICES:
-   - Add health checks for agents
-   - Include timeout handling
-   - Support graceful degradation
-   - Add monitoring and metrics
+@dataclass
+class TaskState:
+    goal: str
+    artifacts: dict[str, str] = field(default_factory=dict)
+    messages: list[Message] = field(default_factory=list)
+    metrics: dict[str, int] = field(default_factory=lambda: {"agent_runs": 0, "failures": 0})
 
-This should demonstrate how to build a production-grade multi-agent system
-that can handle real-world software development tasks autonomously.
-"""
+
+class Agent:
+    """A deterministic agent with health checks and message history."""
+
+    def __init__(self, name: str, role: Role, handler: Callable[[TaskState], str]) -> None:
+        self.name = name
+        self.role = role
+        self.handler = handler
+        self.healthy = True
+        self.last_error: str | None = None
+
+    def health_check(self) -> bool:
+        return self.healthy
+
+    def run(self, state: TaskState) -> None:
+        state.metrics["agent_runs"] += 1
+        try:
+            output = self.handler(state)
+            state.messages.append(Message(self.name, output))
+            self.last_error = None
+        except Exception as exc:
+            self.last_error = f"{type(exc).__name__}: {exc}"
+            state.metrics["failures"] += 1
+            raise
+
+
+class AgentOrchestrator:
+    """Coordinate agents through a fixed delivery lifecycle."""
+
+    def __init__(self) -> None:
+        self.agents: list[Agent] = []
+
+    def register(self, agent: Agent) -> None:
+        self.agents.append(agent)
+
+    def run(self, goal: str) -> TaskState:
+        state = TaskState(goal=goal)
+        for agent in self.agents:
+            if not agent.health_check():
+                raise RuntimeError(f"agent {agent.name} failed health check")
+            agent.run(state)
+        return state
+
+
+def build_software_team() -> AgentOrchestrator:
+    orchestrator = AgentOrchestrator()
+
+    def plan(state: TaskState) -> str:
+        state.artifacts["plan.md"] = f"- Build: {state.goal}\n- Verify with tests\n"
+        return "plan ready"
+
+    def develop(state: TaskState) -> str:
+        state.artifacts["solution.py"] = "def add(a: int, b: int) -> int:\n    return a + b\n"
+        return "implementation ready"
+
+    def review(state: TaskState) -> str:
+        code = state.artifacts["solution.py"]
+        state.artifacts["review.md"] = "Approved: uses type hints and simple implementation.\n"
+        if "return a + b" not in code:
+            raise ValueError("implementation does not satisfy goal")
+        return "review approved"
+
+    def test(state: TaskState) -> str:
+        namespace: dict[str, object] = {}
+        exec(state.artifacts["solution.py"], namespace)
+        assert namespace["add"](2, 4) == 6
+        state.artifacts["test-report.txt"] = "1 passed\n"
+        return "tests passed"
+
+    orchestrator.register(Agent("Planner", Role.PLANNER, plan))
+    orchestrator.register(Agent("Developer", Role.DEVELOPER, develop))
+    orchestrator.register(Agent("Reviewer", Role.REVIEWER, review))
+    orchestrator.register(Agent("Tester", Role.TESTER, test))
+    return orchestrator
+
+
+if __name__ == "__main__":
+    final_state = build_software_team().run("create an add function")
+    print(final_state.artifacts["test-report.txt"])

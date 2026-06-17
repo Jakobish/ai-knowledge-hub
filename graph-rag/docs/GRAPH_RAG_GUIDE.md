@@ -1,75 +1,69 @@
-# Complete Guide to Graph RAG
+# Graph RAG Guide
 
-## 🎯 AI Agent Prompt
+Graph RAG combines retrieval-augmented generation with a knowledge graph. Instead
+of retrieving only chunks by semantic similarity, the system also follows
+relationships between entities.
 
-You are an expert in Graph RAG systems. Create a comprehensive guide covering:
+```mermaid
+flowchart LR
+  Query --> EntityLinking
+  EntityLinking --> GraphTraversal
+  GraphTraversal --> DocumentRetrieval
+  DocumentRetrieval --> Synthesis
+  Synthesis --> CitedAnswer
+```
 
-### 1. INTRODUCTION TO GRAPH RAG
-- What is Graph RAG?
-- How it differs from traditional RAG
-- When to use Graph RAG vs. traditional RAG
-- Real-world applications
+## Core Components
 
-### 2. KNOWLEDGE GRAPHS
-- Fundamentals of knowledge graphs
-- Graph databases overview
-- Schema design for AI applications
-- Best practices for graph construction
+| Component | Responsibility |
+| --- | --- |
+| Chunk store | Holds source passages and document metadata |
+| Entity extractor | Finds people, systems, APIs, concepts, and files |
+| Graph store | Records nodes and relationships |
+| Retriever | Combines text similarity with graph expansion |
+| Synthesizer | Writes an answer grounded in retrieved evidence |
+| Evaluator | Checks citation coverage and answer faithfulness |
 
-### 3. BUILDING KNOWLEDGE GRAPHS
-- Data sources for knowledge graphs
-- Entity and relationship extraction
-- Graph construction pipelines
-- Quality assurance for knowledge graphs
+## Retrieval Pattern
 
-### 4. GRAPH RETRIEVAL
-- Query types for knowledge graphs
-- Traversal algorithms
-- Scoring and ranking
-- Combining multiple retrieval strategies
+1. Extract query entities.
+2. Find matching graph nodes.
+3. Traverse one or two hops to related concepts.
+4. Collect documents attached to those nodes.
+5. Rank by text relevance plus graph proximity.
+6. Generate an answer with citations.
 
-### 5. RAG WITH KNOWLEDGE GRAPHS
-- Integrating graphs with LLMs
-- Context construction
-- Prompt engineering for Graph RAG
-- Handling graph-specific challenges
+```python
+docs = graph.retrieve("How does Graph RAG improve explainability?", depth=1)
+answer = graph.answer("How does Graph RAG improve explainability?")
+```
 
-### 6. IMPLEMENTATION APPROACHES
-- In-memory graphs
-- Database-backed graphs
-- Hybrid approaches
-- Cloud-based solutions
+## When Graph RAG Beats Plain RAG
 
-### 7. GRAPH RAG + AI AGENTS
-- Agents as graph nodes
-- Graph-aware agent decisions
-- Multi-agent systems with shared graphs
-- Dynamic graph updates
+- The domain has important relationships: dependencies, ownership, lineage, or
+  legal entities.
+- Queries require multi-hop reasoning.
+- Users need explanations for why a source was retrieved.
+- The corpus changes over time and needs incremental updates.
 
-### 8. EVALUATION AND METRICS
-- Evaluating Graph RAG systems
-- Comparison with traditional RAG
-- Benchmarking
-- Error analysis
+## Implementation Tips
 
-### 9. TOOLS AND FRAMEWORKS
-- Neo4j
-- Amazon Neptune
-- LangChain Graph RAG
-- Custom implementations
+- Keep source document IDs on every node relationship.
+- Store relationship confidence and extraction method.
+- Prefer shallow traversal first; multi-hop expansion can add noise quickly.
+- Evaluate both retrieval quality and final answer faithfulness.
+- Include graph snapshots in debugging output.
 
-### 10. CASE STUDIES
-- Customer support systems
-- Technical documentation
-- Research assistance
-- Business intelligence
+## Example Graph
 
-### 11. ADVANCED TOPICS
-- Temporal knowledge graphs
-- Multi-modal knowledge graphs
-- Graph neural networks
-- Federated knowledge graphs
+```mermaid
+flowchart LR
+  GraphRAG --> Retrieval
+  GraphRAG --> KnowledgeGraph
+  KnowledgeGraph --> Explainability
+  LoopEngineering --> Verification
+  Verification --> GraphRAG
+```
 
-Include code examples, architecture diagrams, and practical implementation tips for each section.
-
-This should be the definitive guide to Graph RAG for AI practitioners.
+The examples in `../examples` show a small in-memory implementation, a reusable
+knowledge graph builder, and a verification loop that repairs missing evidence.

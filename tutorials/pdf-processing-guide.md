@@ -1,76 +1,40 @@
-# PDF Processing Guide: Working with Documents in AI Systems
+# PDF Processing Guide for AI Systems
 
-## 🎯 AI Agent Prompt
+PDFs are containers for objects, streams, fonts, images, and metadata. AI
+systems should inspect the file before assuming it contains extractable text.
 
-You are an expert in PDF processing for AI systems. Create a comprehensive guide covering:
+## Processing Pipeline
 
-### 1. INTRODUCTION TO PDF PROCESSING
-- Why PDFs are important for AI
-- Challenges with PDFs
-- PDF processing pipeline
-- Use cases
+```mermaid
+flowchart LR
+  PDF --> Metadata
+  PDF --> TextExtraction
+  TextExtraction -->|empty| OCR
+  TextExtraction --> Chunking
+  OCR --> Chunking
+  Chunking --> RAG
+```
 
-### 2. PDF FILE STRUCTURE
-- PDF format overview
-- Objects and references
-- Streams and filters
-- Cross-reference table
-- Trailer dictionary
+## Tool Choices
 
-### 3. TEXT EXTRACTION
-- Simple text extraction
-- Text with formatting
-- Text with positioning
-- Multi-page documents
-- Encrypted PDFs
+| Need | Tooling |
+| --- | --- |
+| Raw triage | Header, object, stream scans |
+| Text extraction | pypdf, pdfminer.six, PyMuPDF |
+| OCR | Tesseract, cloud OCR, vision models |
+| Repair | qpdf, Ghostscript |
+| Forensics | hashes, metadata, JavaScript markers |
 
-### 4. IMAGE EXTRACTION
-- Detecting images in PDFs
-- Extracting images
-- Image formats
-- Image preprocessing
-- OCR for images
+## Try the Local Examples
 
-### 5. METADATA EXTRACTION
-- Standard metadata
-- XMP metadata
-- Document information
-- Custom metadata
-- Digital signatures
+```bash
+python3 pdf-processing/examples/pdf_metadata.py sample.pdf
+python3 pdf-processing/examples/pdf_extractor.py sample.pdf
+```
 
-### 6. ADVANCED TOPICS
-- Tables extraction
-- Forms extraction
-- Annotations extraction
-- Layout analysis
-- Document structure
+The examples are intentionally small and inspectable. Use mature parsers for
+production ingestion.
 
-### 7. OCR PROCESSING
-- When to use OCR
-- OCR pipeline
-- Image preprocessing
-- Text post-processing
-- Multi-language support
+## Exercise
 
-### 8. TOOLS AND LIBRARIES
-- PyPDF2
-- pdfminer.six
-- PyMuPDF
-- pdf2image
-- pytesseract
-- qpdf
-
-### 9. INTEGRATION WITH AI
-- Text understanding
-- Information extraction
-- Document analysis
-- Question answering
-
-### 10. BEST PRACTICES
-- Error handling
-- Performance optimization
-- Memory management
-- Batch processing
-- Quality assurance
-
-Include code examples, tool comparisons, and practical exercises.
+Extend `pdf_metadata.py` to count `%%EOF` markers and flag incremental updates.

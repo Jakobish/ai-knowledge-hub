@@ -1,69 +1,41 @@
 # Graph RAG Tutorial: Building Knowledge Graphs for AI
 
-## 🎯 AI Agent Prompt
+Graph RAG improves plain retrieval by adding relationships. Instead of asking
+"which chunks are similar?", it also asks "which entities are connected?"
 
-You are an expert in Graph RAG. Create a comprehensive tutorial covering:
+```mermaid
+flowchart LR
+  Document --> Entities
+  Entities --> Graph
+  Query --> Graph
+  Graph --> Evidence
+  Evidence --> Answer
+```
 
-### 1. INTRODUCTION TO GRAPH RAG
-- What is Graph RAG?
-- How it improves upon traditional RAG
-- When to use Graph RAG
-- Real-world applications
+## Step 1: Add Documents
 
-### 2. KNOWLEDGE GRAPHS
-- What are knowledge graphs?
-- Graph databases
-- Schema design
-- Best practices
+```python
+graph = GraphRAG()
+graph.add_document("doc1", "Graph RAG uses entity traversal.", ["Graph RAG", "entity traversal"])
+```
 
-### 3. BUILDING A KNOWLEDGE GRAPH
-- Data collection
-- Entity extraction
-- Relationship extraction
-- Graph construction
-- Quality assurance
+## Step 2: Retrieve by Query
 
-### 4. GRAPH RETRIEVAL
-- Query types
-- Traversal algorithms
-- Scoring and ranking
-- Combining strategies
+```python
+docs = graph.retrieve("How does entity traversal help retrieval?")
+```
 
-### 5. RAG WITH KNOWLEDGE GRAPHS
-- LLM integration
-- Context construction
-- Prompt engineering
-- Result generation
+The retriever scores both token overlap and graph proximity.
 
-### 6. IMPLEMENTATION
-- In-memory graphs
-- Database-backed graphs
-- Hybrid approaches
-- Cloud solutions
+## Step 3: Generate Cited Answers
 
-### 7. EXAMPLE: AI DOMAIN KNOWLEDGE GRAPH
-- Defining the schema
-- Extracting entities and relationships
-- Building the graph
-- Querying the graph
-- Using with RAG
+```python
+answer = graph.answer("How does Graph RAG use a knowledge graph?")
+```
 
-### 8. ADVANCED TOPICS
-- Temporal knowledge graphs
-- Multi-modal graphs
-- Graph neural networks
-- Federated graphs
+Keep citations in the answer so users can inspect the source path.
 
-### 9. EVALUATION
-- Metrics
-- Benchmarking
-- Comparison with traditional RAG
-- Error analysis
+## Exercise
 
-### 10. TOOLS AND FRAMEWORKS
-- Neo4j
-- Amazon Neptune
-- LangChain
-- Custom implementations
-
-Include step-by-step instructions, code examples, and practical exercises.
+Add a document about "hybrid search" to `graph-rag/examples/basic_graph_rag.py`
+and query for both vector retrieval and graph traversal.

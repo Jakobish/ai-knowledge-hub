@@ -1,23 +1,26 @@
-# Loop Engineering Starter Kit
+# Loop Engineering
 
-## 🎯 Purpose
-This directory contains practical examples and tutorials for Loop Engineering - the practice of designing systems that automatically prompt AI agents to achieve goals.
+Loop engineering is the practice of designing systems that automatically prompt,
+check, and retry AI agents until a measurable goal is reached.
 
-## 📚 For AI Agents:
-You are an expert in Loop Engineering. Your task is to:
-1. Explain what Loop Engineering is and why it's important
-2. Provide practical examples of different loop patterns
-3. Show how to implement loops in Python and TypeScript
-4. Include best practices and common pitfalls
-5. Add benchmarks and performance considerations
+## What Is Here
 
-## 🔗 Related Topics
-- DAG-based workflows
-- Agent orchestration
-- Autonomous systems
-- Error handling in AI workflows
+- `examples/python/retry_loop.py`: retry loop with verification, memory, timeout,
+  and circuit-breaker support.
+- `examples/python/plan_execute_verify.py`: small file workflow with per-step
+  validation.
+- `examples/python/multi_agent.py`: deterministic planner/developer/reviewer/tester
+  orchestration.
+- `examples/typescript/`: TypeScript versions of retry, orchestration, and git
+  worktree management patterns.
+- `docs/BEST_PRACTICES.md`: production guidance for loop design.
 
-## 📌 Next Steps
-- Explore the examples in the /examples directory
-- Read the documentation in /docs
-- Implement your own loops based on the patterns shown
+## Run
+
+```bash
+python3 loop-engineering/examples/python/retry_loop.py
+python3 -m unittest tests/test_loop_examples.py
+```
+
+Use these examples as starting points for coding agents, RAG maintenance loops,
+document-processing pipelines, and CI repair workflows.

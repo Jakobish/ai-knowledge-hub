@@ -1,23 +1,11 @@
 # OpenAI Agents SDK
 
-## 🎯 Purpose
-OpenAI Agents SDK is the official framework for building AI agents with OpenAI models. This directory contains examples and documentation.
+The OpenAI Agents SDK provides agents, tools, handoffs, guardrails, sessions,
+and tracing around OpenAI model workflows.
 
-## 📚 For AI Agents:
-You are an expert in OpenAI Agents SDK. Your tasks:
+## Contents
 
-1. Explain the SDK architecture
-2. Show how to build agents with the SDK
-3. Implement practical examples
-4. Integrate with OpenAI models
-5. Provide best practices
+- `examples/openai_agent_example.py`: offline tool surface plus current SDK reference snippet.
+- `docs/OPENAI_SDK_GUIDE.md`: practical guide to agents, function tools, and local testing.
 
-## 🔗 Related Topics
-- OpenAI API
-- Agent orchestration
-- Tool calling
-- Model context protocol (MCP)
-
-## 📌 Structure
-- /examples: Practical implementations
-- /docs: Documentation and guides
+Set `OPENAI_API_KEY` only when running live SDK examples.

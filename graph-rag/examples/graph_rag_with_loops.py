@@ -1,60 +1,47 @@
-"""
-Graph RAG with Loop Engineering Integration
-===========================================
+"""Graph RAG combined with a verification loop."""
 
-AI Agent Prompt:
-----------------
-You are an expert in both Graph RAG and Loop Engineering. Implement a system that combines both:
+from __future__ import annotations
 
-1. ARCHITECTURE:
-   - Knowledge graph as the knowledge base
-   - Loop Engineering for agent execution
-   - Integration between graph and loops
-   - Shared context
+import importlib.util
+from pathlib import Path
+import sys
 
-2. WORKFLOW:
-   - Agent receives a query
-   - Graph RAG retrieves relevant information
-   - Loop Engineering executes tasks based on retrieved info
-   - Results are stored back in the graph
 
-3. EXAMPLE SCENARIO:
-   - Build a system that:
-     a) Maintains a knowledge graph of software projects
-     b) Agents can query the graph for project information
-     c) Agents can update the graph with new information
-     d) Loops manage the agent workflows
+def _load_basic_graph_rag():
+    path = Path(__file__).with_name("basic_graph_rag.py")
+    spec = importlib.util.spec_from_file_location("basic_graph_rag_local", path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    sys.modules["basic_graph_rag_local"] = module
+    spec.loader.exec_module(module)
+    return module
 
-4. USE CASE: SOFTWARE DOCUMENTATION
-   - Knowledge graph contains:
-     * Projects
-     * Modules
-     * Functions
-     * Dependencies
-     * Documentation
-   - Agents can:
-     * Query for information about specific components
-     * Update documentation based on code changes
-     * Find related components
-     * Generate documentation automatically
 
-5. ADVANCED FEATURES:
-   - Dynamic graph updates based on loop results
-   - Graph-aware loop decisions
-   - Multi-hop reasoning using graph
-   - Explanation generation using graph paths
+basic = _load_basic_graph_rag()
 
-6. IMPLEMENTATION:
-   - Use a graph database (Neo4j recommended)
-   - Implement graph RAG retrieval
-   - Build loop engineering framework
-   - Connect the two systems
 
-7. PERFORMANCE:
-   - Optimize graph queries
-   - Cache frequent results
-   - Parallel execution where possible
-   - Resource management
+def answer_with_repair(query: str) -> tuple[str, int]:
+    graph = basic.build_demo_graph()
+    required_terms = basic.tokens(query)
 
-This should demonstrate the power of combining Graph RAG with Loop Engineering for intelligent AI systems.
-"""
+    for attempt in range(1, 4):
+        answer = graph.answer(query)
+        if "No evidence" not in answer and required_terms.issubset(basic.tokens(answer)):
+            return answer, attempt
+        graph.add_document(
+            "repair-note",
+            "Graph RAG answers questions by retrieving documents connected through graph entities.",
+            ["Graph RAG", "graph entities", "retrieval"],
+        )
+    raise RuntimeError("unable to produce cited answer")
+
+
+def documentation_update_loop(changed_symbol: str) -> str:
+    graph = basic.build_demo_graph()
+    graph.add_document("code-change", f"{changed_symbol} now updates documentation automatically.", [changed_symbol, "documentation"])
+    return graph.answer(f"How does {changed_symbol} affect documentation?")
+
+
+if __name__ == "__main__":
+    print(answer_with_repair("What is graph entity retrieval?"))
+    print(documentation_update_loop("GraphRAGLoop"))

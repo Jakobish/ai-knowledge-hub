@@ -1,55 +1,40 @@
-"""
-DAG with Loop Integration
-========================
+"""Combine DAG orchestration with retry loops."""
 
-AI Agent Prompt:
-----------------
-You are an expert in combining DAGs with Loop Engineering. Implement a system that uses DAGs to orchestrate multiple loops:
+from __future__ import annotations
 
-1. ARCHITECTURE:
-   - DAG nodes can contain loops
-   - Loops can trigger DAG executions
-   - Shared context between DAG and loops
-   - Nested structures (DAGs within loops within DAGs)
+from dataclasses import dataclass
+from typing import Callable, Any
 
-2. IMPLEMENTATION:
-   - Create a DAGNode that can execute a loop
-   - Support for loop results as DAG inputs
-   - Context passing between levels
-   - Error propagation across boundaries
 
-3. EXAMPLE WORKFLOW:
-   - Implement a system that:
-     a) Uses a DAG to orchestrate a multi-phase process
-     b) Each phase contains a loop
-     c) Loop results feed into subsequent DAG nodes
-     d) Final results are aggregated
+@dataclass
+class LoopResult:
+    value: Any
+    attempts: int
 
-4. USE CASE:
-   - Software development pipeline:
-     * Phase 1 (DAG): Planning (multiple parallel planning loops)
-     * Phase 2 (DAG): Development (multiple parallel coding loops)
-     * Phase 3 (DAG): Testing (multiple parallel testing loops)
-     * Phase 4 (DAG): Deployment (single deployment loop)
 
-5. ADVANCED FEATURES:
-   - Dynamic DAG generation based on loop results
-   - Conditional DAG paths based on loop outcomes
-   - Resource sharing between DAG and loops
-   - Monitoring of nested executions
+def retry(name: str, action: Callable[[int], Any], verify: Callable[[Any], bool], attempts: int = 3) -> LoopResult:
+    last_value = None
+    for attempt in range(1, attempts + 1):
+        last_value = action(attempt)
+        if verify(last_value):
+            return LoopResult(last_value, attempt)
+    raise RuntimeError(f"{name} failed after {attempts} attempts")
 
-6. INTEGRATION:
-   - Show how to connect with:
-     * AI agents for loop execution
-     * External systems for DAG nodes
-     * Databases for state management
-     * APIs for tool execution
 
-7. BEST PRACTICES:
-   - Avoid excessive nesting
-   - Manage context carefully
-   - Add proper error handling
-   - Include comprehensive logging
+def run_agent_pipeline(require_review_fix: bool = True) -> dict[str, LoopResult]:
+    results: dict[str, LoopResult] = {}
 
-This should demonstrate the power of combining DAGs and loops for complex AI systems.
-"""
+    results["plan"] = retry("plan", lambda _: ["write code", "run tests"], lambda plan: "run tests" in plan)
+    results["code"] = retry(
+        "code",
+        lambda attempt: "def add(a,b): return a-b" if attempt == 1 and require_review_fix else "def add(a,b): return a+b",
+        lambda code: "a+b" in code,
+    )
+    results["review"] = retry("review", lambda _: "approved", lambda text: text == "approved")
+    results["docs"] = retry("docs", lambda _: "Documented add(a, b)", lambda text: "add" in text)
+    return results
+
+
+if __name__ == "__main__":
+    for step, result in run_agent_pipeline().items():
+        print(f"{step}: {result.value!r} in {result.attempts} attempt(s)")
